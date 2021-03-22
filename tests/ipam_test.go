@@ -2,12 +2,11 @@ package tests_test
 
 import (
 	"context"
+	"github.com/anexia-it/go-anxcloud/pkg/ipam/prefix"
 	"time"
 
 	"github.com/anexia-it/go-anxcloud/pkg/client"
 	"github.com/anexia-it/go-anxcloud/pkg/ipam/address"
-	"github.com/anexia-it/go-anxcloud/pkg/ipam/prefix"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -73,5 +72,19 @@ var _ = Describe("IPAM API endpoint tests", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 
+		It("Should reserve a random prefix for a given VLAN", func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 15*time.Minute)
+			defer cancel()
+
+			By("Reserving a new IP address")
+			res, err := address.NewAPI(cli).ReserveRandom(ctx, address.ReserveRandom{
+				LocationID: locationID,
+				VlanID:     vlanID,
+				Count:      1,
+			})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(len(res.Data)).To(Equal(1))
+
+		})
 	})
 })
